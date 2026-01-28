@@ -1,0 +1,58 @@
+﻿@model ToDoList.Models.Tasks
+
+<form action="@(Model?.TaskId == 0 || Model == null ? "Create": "Edit")"
+    asp-controller="Tasks"
+    method="post"
+    onsubmit="submitTaskForm(event,this)">
+
+    <input asp-for="TaskId" type="hidden" />
+    <input asp-for="ListId" type="hidden" />'
+    
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+     </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label">Description</label>
+        <textarea asp-for="Description" class="form-control" rows="3"
+                  placeholder="Add details about this task (optional)"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DueDate" class="form-label">Due Date</label>
+        <input asp-for="DueDate" type="datetime-local" class="form-control" />
+        <span asp-validation-for="DueDate" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Priority" class="form-label">Priority</label>
+        <select asp-for="Priority" class="form-select">
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+        </select>
+        <span asp-validation-for="Priority" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3 form-check">
+        <input asp-for="IsCompleted" type="checkbox" class="form-check-input" />
+        <label asp-for="IsCompleted" class="form-check-label">Mark as completed</label>
+    </div>
+
+    <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-primary flex-fill">
+            <i class="bi bi-check-circle"></i> Save Task
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="closeSidebar()">
+            Cancel
+        </button>
+    </div>
+
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

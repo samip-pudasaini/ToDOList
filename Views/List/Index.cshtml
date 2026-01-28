@@ -1,0 +1,72 @@
+﻿@model ToDoList.ViewModel.TaskListViewModel
+
+@{
+    ViewData["Title"] = "TO DO List";
+}
+
+<div class="todo-container row">
+    <!--List Panel-->
+    <div class="lists-panel col-2 bg-body-tertiary border border-light-subtle rounded-4 shadow-sm p-3
+            position-relative"
+         style="height: 80vh; overflow-y: auto;">
+
+        <h3 class="text-center text-secondary mb-3">Lists</h3>
+        <hr />
+
+        <div class="list-panel-row row">
+            @if (Model?.List != null)
+            {
+                foreach (var ListItem in Model.List)
+                {
+                    <a asp-controller="List" asp-action="selectedList" asp-route-id="@ListItem.ListId" class="list-group-item p-2 mb-2 bg-white rounded">
+                        <strong>@ListItem.Name</strong>
+                    </a>
+                }
+            }
+        </div>
+
+        <!-- Bottom pinned item -->
+        <div class="list-panel-bottom position-absolute bottom-0
+                p-2 mb-2 g-white rounded" style="width: 85%">
+            <form asp-action="Create" asp-controller="List" method="post">
+                <input type="text" name="Name" class="AddList form-control"
+                    placeholder="Add new list" />
+            </form>
+        </div>
+    </div>
+
+
+    <!--Task Panel-->
+    <div class="tasks-panel ms-4 col col-gap-2 bg-body-tertiary border border-light-subtle rounded-4 shadow-sm p-3 position-relative" style="height: 80vh; overflow-y: auto;">
+        <h3 class="text-center text-secondary mb-3">Tasks</h3>
+        <hr />
+        <div class="list-panel-row row">
+            @if (Model?.Tasks != null && Model.Tasks.Any())
+            {
+                foreach (var TaskItem in Model.Tasks)
+                {
+                    <div class="task-item p-2 mb-2 bg-white rounded">
+                        <strong>@TaskItem.Title</strong>
+                        @if (!string.IsNullOrEmpty(TaskItem.Description))
+                        {
+                            <p class="mb-1 text-muted small">@TaskItem.Description</p>
+                        }
+                        <small class="text-secondary">
+                            Priority: @TaskItem.Priority | Due: @TaskItem.DueDate.ToShortDateString()
+                        </small>
+                    </div>
+                }
+            }
+        </div>
+
+        <!-- Bottom pinned item -->
+        <div class="list-panel-bottom position-absolute bottom-0
+                p-2 mb-2 g-white rounded" style="width: 85%">
+            <form asp-action="Create" asp-controller="Task" method="post">
+                <input type="hidden" name="ListId" value="@Model.SelectedList?.ListId" />
+                <input type="text" name="Title" class="AddTask form-control"
+                       placeholder="Add new Task" />
+            </form>
+        </div>
+    </div>
+</div>
