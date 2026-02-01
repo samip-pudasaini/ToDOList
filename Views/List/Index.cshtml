@@ -45,15 +45,17 @@
             {
                 foreach (var TaskItem in Model.Tasks)
                 {
-                    <div class="task-item p-2 mb-2 bg-white rounded">
-                        <strong>@TaskItem.Title</strong>
-                        @if (!string.IsNullOrEmpty(TaskItem.Description))
-                        {
-                            <p class="mb-1 text-muted small">@TaskItem.Description</p>
-                        }
-                        <small class="text-secondary">
-                            Priority: @TaskItem.Priority | Due: @TaskItem.DueDate.ToShortDateString()
-                        </small>
+                    <div class="task-item task-clickable p-2 mb-2 bg-white rounded"
+                        data-task-id="@TaskItem.TaskId"
+                        style="cursor: pointer;">
+                            <strong>@TaskItem.Title</strong>
+                            @if (!string.IsNullOrEmpty(TaskItem.Description))
+                            {
+                                <p class="mb-1 text-muted small">@TaskItem.Description</p>
+                            }
+                            <small class="text-secondary">
+                                Priority: @TaskItem.Priority | Due: @TaskItem.DueDate.ToShortDateString()
+                            </small>
                     </div>
                 }
             }
@@ -69,4 +71,60 @@
             </form>
         </div>
     </div>
+
+    <!-- Sidebar for task details -->
+    <div id="taskSidebar" class="position-fixed top-0 end-0 bg-white shadow-lg"
+         style="width: 450px; height: 100vh; display: none; z-index: 1050; overflow-y: auto;">
+        <div class="p-3">
+            <button id="closeSidebar" class="btn btn-close float-end"></button>
+            <div id="sidebarContent" class="mt-4">
+                <!-- Partial view loads here -->
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        //Get task items
+        const taskItems = document.querySelectorAll(".task-clickable");
+
+        //Add click listener to each
+        taskItems.forEach( taskItems => {
+                taskItems.addEventListener('click', function(){
+                    //get task ID
+                    const taskId = this.getAttribute("data-task-id");
+
+                    //call function to load sidebar
+                    loadTaskSidebar(taskId);
+                });
+        });
+        
+        //fetch and load sidebar
+        function loadTaskSidebar(taskId) {
+            fetch(`/Task/GetTaskDetails?id=${taskId}`)
+                .then(response => response.text())
+                .then(html => {
+                    console.log("Response:", html); // <-- check this in the browser console
+                    if (html.startsWith("Error:")) {
+                        alert(html);
+                        return;
+                    }
+                    document.getElementById('sidebarContent').innerHTML = html;
+                    document.getElementById('taskSidebar').style.display = 'block';
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Could not load task details.");
+                });
+        }
+
+
+        //close button
+        function closeSidebar() {
+            document.getElementById('taskSidebar').style.display = 'none';
+        }
+
+        document.getElementById('closeSidebar').addEventListener('click', closeSidebar);
+    </script>
+}

@@ -58,5 +58,25 @@ namespace ToDoList.Controllers
 
             return RedirectToAction("SelectedList", "List", new { id = ListId });
         }
+
+        public IActionResult GetTaskDetails(int id)
+        {
+            try
+            {
+                var task = _db.Tasks.FirstOrDefault(t => t.TaskId == id);
+
+                if (task == null)
+                {
+                    return NotFound();
+                }
+
+                return PartialView("~/Views/List/_TaskForm.cshtml", task);
+            }
+            catch (Exception ex)
+            {
+                return Content($"Error: {ex.Message} | Inner: {ex.InnerException?.Message}");
+            }
+        }
+
     }
 }

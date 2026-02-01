@@ -1,12 +1,14 @@
 ﻿@model ToDoList.Models.Tasks
 
-<form action="@(Model?.TaskId == 0 || Model == null ? "Create": "Edit")"
-    asp-controller="Tasks"
+<form asp-action="@(Model?.TaskId == 0 || Model == null ? "Create": "Edit")"
+    asp-controller="Task"
     method="post"
-    onsubmit="submitTaskForm(event,this)">
+    >
+
+    @Html.AntiForgeryToken()
 
     <input asp-for="TaskId" type="hidden" />
-    <input asp-for="ListId" type="hidden" />'
+    <input asp-for="ListId" type="hidden" />
     
     <div class="mb-3">
         <label asp-for="Title" class="form-label"></label>
@@ -52,7 +54,3 @@
     </div>
 
 </form>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
