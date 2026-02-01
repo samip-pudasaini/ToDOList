@@ -48,7 +48,19 @@
                     <div class="task-item task-clickable p-2 mb-2 bg-white rounded"
                         data-task-id="@TaskItem.TaskId"
                         style="cursor: pointer;">
-                            <strong>@TaskItem.Title</strong>
+                        
+                            
+                        <strong>
+                            @if (TaskItem.IsCompleted)
+                            {
+                                <s>@TaskItem.Title</s>
+                            }
+                            else
+                            {
+                                @TaskItem.Title
+                            }
+                        </strong>
+
                             @if (!string.IsNullOrEmpty(TaskItem.Description))
                             {
                                 <p class="mb-1 text-muted small">@TaskItem.Description</p>

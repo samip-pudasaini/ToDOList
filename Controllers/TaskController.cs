@@ -78,5 +78,29 @@ namespace ToDoList.Controllers
             }
         }
 
+        //POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Tasks obj)
+        {
+            var TaskFromDb = _db.Tasks.Find(obj.TaskId);
+
+            if (TaskFromDb == null)
+            {
+                TempData["Error"] = "Task not found.";
+                return RedirectToAction("Index", "List");
+            }
+
+            TaskFromDb.Title = obj.Title;
+            TaskFromDb.Description = obj.Description;
+            TaskFromDb.Priority = obj.Priority;
+            TaskFromDb.DueDate = obj.DueDate;
+            TaskFromDb.IsCompleted = obj.IsCompleted;
+
+            _db.SaveChanges();
+            TempData["success"] = $"Task updated successfully | ListId: {TaskFromDb.ListId}";
+
+            return RedirectToAction("SelectedList", "List", new { id = TaskFromDb.ListId });
+        }
     }
 }
