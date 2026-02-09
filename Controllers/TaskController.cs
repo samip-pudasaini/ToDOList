@@ -102,5 +102,25 @@ namespace ToDoList.Controllers
 
             return RedirectToAction("SelectedList", "List", new { id = TaskFromDb.ListId });
         }
+
+        //POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(Tasks obj)
+        {
+            var TaskFromDb = _db.Tasks.Find(obj.TaskId);
+
+            if (TaskFromDb == null)
+            {
+                TempData["Error"] = "Task not found.";
+                return RedirectToAction("Index", "List");
+            }
+
+            _db.Tasks.Remove(TaskFromDb);
+            _db.SaveChanges();
+            TempData["success"] = $"Task deleted successfully | ListId: {TaskFromDb.ListId}";
+
+            return RedirectToAction("SelectedList", "List", new { id = TaskFromDb.ListId });
+        }
     }
 }
