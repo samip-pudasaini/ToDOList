@@ -18,9 +18,18 @@
             {
                 foreach (var ListItem in Model.List)
                 {
-                    <a asp-controller="List" asp-action="selectedList" asp-route-id="@ListItem.ListId" class="list-group-item p-2 mb-2 bg-white rounded">
-                        <strong>@ListItem.Name</strong>
-                    </a>
+                    <div class="p-2 mb-2 bg-white rounded">
+                        <a asp-controller="List" asp-action="selectedList" asp-route-id="@ListItem.ListId" class="list-group-item float-start">
+                             <strong>@ListItem.Name</strong>
+                        </a>
+
+                        @if(ListItem.ListId != 1)
+                        {
+                            <form method="post" asp-controller="List" asp-action="Delete" asp-route-id="@ListItem.ListId">
+                                <button type="submit" class="btn btn-close float-end"></button>
+                            </form>
+                        }
+                    </div>
                 }
             }
         </div>

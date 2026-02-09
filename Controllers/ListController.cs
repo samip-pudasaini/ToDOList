@@ -83,5 +83,29 @@ namespace ToDoList.Controllers
 
             return View("Index", viewModel);
         }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int id)
+        {
+            var selectedList = _db.Lists.Find(id);
+
+            if (selectedList == null)
+            {
+                TempData["Error"] = "Task not found.";
+                return RedirectToAction("Index");
+            }
+
+            //getting the tasks inside the list to delete them first
+            var tasksInsideList = _db.Tasks.Where(t => t.ListId == id).ToList();
+            _db.Tasks.RemoveRange(tasksInsideList);
+
+
+            _db.Lists.Remove(selectedList);
+            _db.SaveChanges();
+
+            return RedirectToAction("Index");
+        }
     }
 }
