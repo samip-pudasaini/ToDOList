@@ -2,18 +2,61 @@
     ViewData["Title"] = "Calendar";
 }
 
-<div id="calendar" style="height: 600px;"></div>
+<div id="calendar" style="height: 600px; width: fit-content;"></div>
+
+
+<!-- Sidebar for task details -->
+<div id="taskSidebar" class="position-fixed top-0 end-0 bg-white shadow-lg"
+     style="width: 450px; height: 100vh; display: none; z-index: 1050; overflow-y: auto;">
+    <div class="p-3">
+        <button id="closeSidebar" class="btn btn-close float-end"></button>
+        <div id="sidebarContent" class="mt-4">
+            <!-- Partial view loads here -->
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var calendarEL = document.getElementById('calendar');
+            
             var calendar = new FullCalendar.Calendar(calendarEL, {
-                initialView: 'dayGridMonth',
-                height: 'auto',
-                events: '@Url.Action("GetEvents", "Calendar")'
+                        initialView: 'dayGridMonth',
+                        height: 'auto',
+                        events: '@Url.Action("GetEvents", "Calendar")',
+                        eventDidMount: function(info) {
+                            if (info.event.extendedProps.isCompleted) {
+                                var title = info.el.querySelector('.fc-event-title');
+                                title.style.textDecoration = 'line-through';
+                                title.style.textDecorationColor = 'black';
+                                title.style.textDecorationThickness = '2px';
+                            }
+                        },
+                        eventClick: function(info) {
+                            const taskId = info.event.id;
+                            loadTaskSidebar(taskId);
+                        }
             });
             calendar.render();
+
+            function loadTaskSidebar(taskId) {
+                fetch(`/Task/GetTaskDetails?id=${taskId}&returnUrl=/Calendar/Index`)
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('sidebarContent').innerHTML = html;
+                        document.getElementById('taskSidebar').style.display = 'block';
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert("Could not load task details.");
+                    });
+            }
+
+            document.getElementById('closeSidebar').addEventListener('click', function() {
+                document.getElementById('taskSidebar').style.display = 'none';
+            });
+
         });
     </script>
 }

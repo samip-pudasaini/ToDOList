@@ -9,6 +9,7 @@
 
     <input asp-for="TaskId" type="hidden" />
     <input asp-for="ListId" type="hidden" />
+    <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
     
     <div class="mb-3">
         <label asp-for="Title" class="form-label"></label>

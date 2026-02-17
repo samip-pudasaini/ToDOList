@@ -22,8 +22,13 @@ namespace ToDoList.Controllers
             var events = _db.Tasks
                 .Where(t => t.DueDate != null)
                 .Select(t => new {
+                    id = t.TaskId,
                     title = t.Title,
-                    start = t.DueDate
+                    start = t.DueDate,
+                    isCompleted = t.IsCompleted,
+                    color = t.Priority == "High" ? "#e74c3c" :
+                            t.Priority == "Medium" ? "#f39c12" :
+                            "#2ecc71" //low ;
                 });
             return Json(events);
         }

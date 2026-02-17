@@ -59,7 +59,7 @@ namespace ToDoList.Controllers
             return RedirectToAction("SelectedList", "List", new { id = ListId });
         }
 
-        public IActionResult GetTaskDetails(int id)
+        public IActionResult GetTaskDetails(int id, string returnUrl = null)
         {
             try
             {
@@ -69,7 +69,7 @@ namespace ToDoList.Controllers
                 {
                     return NotFound();
                 }
-
+                ViewData["ReturnUrl"] = returnUrl;
                 return PartialView("~/Views/List/_TaskForm.cshtml", task);
             }
             catch (Exception ex)
@@ -81,7 +81,7 @@ namespace ToDoList.Controllers
         //POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Tasks obj)
+        public IActionResult Edit(Tasks obj, string returnUrl = null)
         {
             var TaskFromDb = _db.Tasks.Find(obj.TaskId);
 
@@ -99,6 +99,11 @@ namespace ToDoList.Controllers
 
             _db.SaveChanges();
             TempData["success"] = $"Task updated successfully | ListId: {TaskFromDb.ListId}";
+
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                return Redirect(returnUrl);  // <-- goes back to calendar if returnUrl is set
+            }
 
             return RedirectToAction("SelectedList", "List", new { id = TaskFromDb.ListId });
         }
