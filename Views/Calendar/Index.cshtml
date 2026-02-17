@@ -1,0 +1,19 @@
+﻿@{
+    ViewData["Title"] = "Calendar";
+}
+
+<div id="calendar" style="height: 600px;"></div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEL = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEL, {
+                initialView: 'dayGridMonth',
+                height: 'auto',
+                events: '@Url.Action("GetEvents", "Calendar")'
+            });
+            calendar.render();
+        });
+    </script>
+}
