@@ -25,6 +25,7 @@
                         initialView: 'dayGridMonth',
                         height: 'auto',
                         events: '@Url.Action("GetEvents", "Calendar")',
+
                         eventDidMount: function(info) {
                             if (info.event.extendedProps.isCompleted) {
                                 var title = info.el.querySelector('.fc-event-title');
@@ -33,15 +34,25 @@
                                 title.style.textDecorationThickness = '2px';
                             }
                         },
+
                         eventClick: function(info) {
                             const taskId = info.event.id;
                             loadTaskSidebar(taskId);
+                        },
+
+                        //adding dateClick
+                        dateClick: function(info)
+                        {
+                            loadTaskSidebar(0, info.dateStr); // 0 = new task
                         }
             });
             calendar.render();
 
-            function loadTaskSidebar(taskId) {
-                fetch(`/Task/GetTaskDetails?id=${taskId}&returnUrl=/Calendar/Index`)
+            function loadTaskSidebar(taskId, date) {
+                var url = `/Task/GetTaskDetails?id=${taskId}&returnUrl=/Calendar/Index`;
+                if (date) url += `&date=${date}`;
+
+                fetch(url)
                     .then(response => response.text())
                     .then(html => {
                         document.getElementById('sidebarContent').innerHTML = html;

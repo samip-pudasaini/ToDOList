@@ -25,7 +25,7 @@ namespace ToDoList.Controllers
         //POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(String Title, int ListId)
+        public IActionResult Create(String Title, int ListId, string returnUrl = null)
         {
             if (string.IsNullOrWhiteSpace(Title))
             {
@@ -54,22 +54,45 @@ namespace ToDoList.Controllers
 
                 _db.Tasks.Add(TaskItem);
                 _db.SaveChanges();
+
+                TempData["success"] = "Task created successfully.";
+
+                if (!string.IsNullOrEmpty(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
             }
 
             return RedirectToAction("SelectedList", "List", new { id = ListId });
         }
 
-        public IActionResult GetTaskDetails(int id, string returnUrl = null)
+        public IActionResult GetTaskDetails(int id, string returnUrl = null, string date = null)
         {
             try
             {
-                var task = _db.Tasks.FirstOrDefault(t => t.TaskId == id);
-
-                if (task == null)
+                Tasks task;
+                if (id == 0) //add directly from the calendar
                 {
-                    return NotFound();
+                    //New task with pre-filled date
+                    task = new Tasks
+                    {
+                        TaskId = 0,
+                        DueDate = date != null ? DateTime.Parse(date) : DateTime.Now,
+                        Priority = "Low"
+                    };
                 }
+                else
+                {
+                    task = _db.Tasks.FirstOrDefault(t => t.TaskId == id);
+
+                    if (task == null)
+                    {
+                        return NotFound();
+                    }
+                }
+
                 ViewData["ReturnUrl"] = returnUrl;
+                ViewData["Lists"] = _db.Lists.ToList(); // pass lists for dropdown
                 return PartialView("~/Views/List/_TaskForm.cshtml", task);
             }
             catch (Exception ex)

@@ -1,5 +1,9 @@
 ﻿@model ToDoList.Models.Tasks
 
+@{
+    var lists = ViewData["Lists"] as List<ToDoList.Models.List>;
+}
+
 <form asp-action="@(Model?.TaskId == 0 || Model == null ? "Create": "Edit")"
     asp-controller="Task"
     method="post"
@@ -10,7 +14,28 @@
     <input asp-for="TaskId" type="hidden" />
     <input asp-for="ListId" type="hidden" />
     <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
-    
+
+    <!-- Add tasks inside the List -->
+    @if (lists != null)
+        {
+            <div class="mb-3">
+                <label class="form-label">List</label>
+                <select name="ListId" class="form-select">
+                    @foreach(var list in lists)
+                    {
+                       if (Model.ListId == list.ListId)
+                        {
+                            <option value="@list.ListId" selected>@list.Name</option>
+                        }
+                        else
+                        {
+                            <option value="@list.ListId">@list.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+        }
+
     <div class="mb-3">
         <label asp-for="Title" class="form-label"></label>
         <input asp-for="Title" class="form-control" />
