@@ -1,60 +1,51 @@
 ﻿@model ToDoList.Models.Tasks
-
 @{
     var lists = ViewData["Lists"] as List<ToDoList.Models.List>;
 }
-
 <form asp-action="@(Model?.TaskId == 0 || Model == null ? "Create": "Edit")"
-    asp-controller="Task"
-    method="post"
-    >
-
+      asp-controller="Task"
+      method="post">
     @Html.AntiForgeryToken()
-
     <input asp-for="TaskId" type="hidden" />
-    <input asp-for="ListId" type="hidden" />
     <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
 
-    <!-- Add tasks inside the List -->
     @if (lists != null)
-        {
-            <div class="mb-3">
-                <label class="form-label">List</label>
-                <select name="ListId" class="form-select">
-                    @foreach(var list in lists)
+    {
+        <div class="mb-3">
+            <label class="form-label">List</label>
+            <select name="ListId" class="form-select" required>
+                <option value="">-- Select a list --</option>
+                @foreach (var list in lists)
+                {
+                    if (Model.ListId == list.ListId)
                     {
-                       if (Model.ListId == list.ListId)
-                        {
-                            <option value="@list.ListId" selected>@list.Name</option>
-                        }
-                        else
-                        {
-                            <option value="@list.ListId">@list.Name</option>
-                        }
+                        <option value="@list.ListId" selected>@list.Name</option>
                     }
-                </select>
-            </div>
-        }
+                    else
+                    {
+                        <option value="@list.ListId">@list.Name</option>
+                    }
+                }
+            </select>
+        </div>
+    }
 
     <div class="mb-3">
         <label asp-for="Title" class="form-label"></label>
-        <input asp-for="Title" class="form-control" />
+        <input asp-for="Title" class="form-control" required />
         <span asp-validation-for="Title" class="text-danger"></span>
-     </div>
-
+    </div>
     <div class="mb-3">
         <label asp-for="Description" class="form-label">Description</label>
         <textarea asp-for="Description" class="form-control" rows="3"
                   placeholder="Add details about this task (optional)"></textarea>
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
-
     <div class="mb-3">
         <label asp-for="DueDate" class="form-label">Due Date</label>
         <input asp-for="DueDate" type="datetime-local" class="form-control" />
         <span asp-validation-for="DueDate" class="text-danger"></span>
     </div>
-
     <div class="mb-3">
         <label asp-for="Priority" class="form-label">Priority</label>
         <select asp-for="Priority" class="form-select">
@@ -64,19 +55,20 @@
         </select>
         <span asp-validation-for="Priority" class="text-danger"></span>
     </div>
-
     <div class="mb-3 form-check">
         <input asp-for="IsCompleted" type="checkbox" class="form-check-input" />
         <label asp-for="IsCompleted" class="form-check-label">Mark as completed</label>
     </div>
-
     <div class="d-flex gap-2 mt-4">
-        <button type="submit" asp-action="Edit" asp-controller="Task" method="post" class="btn btn-primary flex-fill">
-            <i class="bi bi-check-circle"></i> Save Task
+        <button type="submit" class="btn btn-primary flex-fill">
+            <i class="bi bi-check-circle"></i> @(Model?.TaskId == 0 ? "Create Task" : "Save Task")
         </button>
-        <button type="submit" asp-controller="Task" asp-action="Delete" method="post" class="btn btn-danger">
-            Delete
-        </button>
-    </div>
 
+        @if (Model?.TaskId != 0)
+        {
+            <button type="submit" asp-action="Delete" asp-controller="Task" class="btn btn-danger">
+                Delete
+            </button>
+        }
+    </div>
 </form>
