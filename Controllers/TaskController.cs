@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using ToDoList.Data;
 using ToDoList.Models;
 using ToDoList.ViewModel;
@@ -22,54 +23,95 @@ namespace ToDoList.Controllers
             return View(viewModel);
         }
 
-        //POST
+
+        //Handles quick create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(String Title, int ListId)
+        public IActionResult QuickCreate(String Title, int ListId)
         {
             if (string.IsNullOrWhiteSpace(Title))
             {
-                // Input is invalid
-                TempData["Error"] = "List name cannot be empty.";
-                return RedirectToAction("Index");
+                TempData["Error"] = "Task name cannot be empty.";
+                return RedirectToAction("SelectedList", "List", new { id = ListId });
             }
 
-            if (ModelState.IsValid)
+            var TaskItem = new ToDoList.Models.Tasks
             {
-                var obj = _db.Tasks.FirstOrDefault(t => t.Title == Title);
+                Title = Title,
+                ListId = ListId,
+                Priority = "Low",
+                DueDate = DateTime.Now.AddDays(1)
+            };
 
-                if (obj != null)
-                {
-                    TempData["Error"] = "A list with this name already exists.";
-                    return RedirectToAction("SelectedList", "List", new {id = ListId});
-                }
-
-                var TaskItem = new ToDoList.Models.Tasks
-                {
-                    Title = Title,
-                    ListId = ListId,
-                    Priority = "Low",
-                    DueDate = DateTime.Now.AddDays(1)
-                };
-
-                _db.Tasks.Add(TaskItem);
-                _db.SaveChanges();
-            }
+            _db.Tasks.Add(TaskItem);
+            _db.SaveChanges();
+            TempData["success"] = "Task created successfully.";
 
             return RedirectToAction("SelectedList", "List", new { id = ListId });
         }
 
-        public IActionResult GetTaskDetails(int id, string returnUrl = null)
+
+        //Handles creation from the calendar
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(Tasks obj, string returnUrl = null)
+        {
+            if (string.IsNullOrWhiteSpace(obj.Title))
+            {
+                TempData["Error"] = "Task name cannot be empty.";
+                if (!string.IsNullOrEmpty(returnUrl))
+                    return Redirect(returnUrl);
+                return RedirectToAction("SelectedList", "List", new { id = obj.ListId });
+            }
+
+            // Make sure ListId is valid
+            if (obj.ListId == 0 || !_db.Lists.Any(l => l.ListId == obj.ListId))
+            {
+                TempData["Error"] = "Please select a valid list.";
+                if (!string.IsNullOrEmpty(returnUrl))
+                    return Redirect(returnUrl);
+                return RedirectToAction("Index", "List");
+            }
+
+            obj.TaskId = 0; // Force EF to treat this as a new entity
+            _db.Tasks.Add(obj);
+            _db.SaveChanges();
+            TempData["success"] = "Task created successfully.";
+
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            return RedirectToAction("SelectedList", "List", new { id = obj.ListId });
+        }
+
+        public IActionResult GetTaskDetails(int id, string returnUrl = null, string date = null)
         {
             try
             {
-                var task = _db.Tasks.FirstOrDefault(t => t.TaskId == id);
-
-                if (task == null)
+                Tasks task;
+                if (id == 0) //add directly from the calendar
                 {
-                    return NotFound();
+                    //New task with pre-filled date
+                    task = new Tasks
+                    {
+                        TaskId = 0,
+                        DueDate = date != null ? DateTime.Parse(date) : DateTime.Now,
+                        Priority = "Low"
+                    };
                 }
+                else
+                {
+                    task = _db.Tasks.FirstOrDefault(t => t.TaskId == id);
+
+                    if (task == null)
+                    {
+                        return NotFound();
+                    }
+                }
+
                 ViewData["ReturnUrl"] = returnUrl;
+                ViewData["Lists"] = _db.Lists.ToList(); // pass lists for dropdown
                 return PartialView("~/Views/List/_TaskForm.cshtml", task);
             }
             catch (Exception ex)

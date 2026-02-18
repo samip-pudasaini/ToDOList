@@ -85,7 +85,7 @@
         <!-- Bottom pinned item -->
         <div class="list-panel-bottom position-absolute bottom-0
                 p-2 mb-2 g-white rounded" style="width: 85%">
-            <form asp-action="Create" asp-controller="Task" method="post">
+            <form asp-action="QuickCreate" asp-controller="Task" method="post">
                 <input type="hidden" name="ListId" value="@Model.SelectedList?.ListId" />
                 <input type="text" name="Title" class="AddTask form-control"
                        placeholder="Add new Task" />
