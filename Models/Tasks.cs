@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ToDoList.Models
 {
@@ -10,7 +11,11 @@ namespace ToDoList.Models
         public string Title { get; set; }
         public string? Description { get; set; }
         public bool IsCompleted { get; set; } = false;
+        
+        [DataType(DataType.Date)]
+        [Column(TypeName = "date")]
         public DateTime DueDate { get; set; }
+
         [Required]
         public string Priority { get; set; } = "Low";
 
